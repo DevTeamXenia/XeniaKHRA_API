@@ -8,7 +8,8 @@ router.get('/',tokenService.verifyCommonUser, paymentController.getAllPayment);
 router.put('/update', tokenService.verifyCommonUser, paymentController.updatePayment);
 router.post('/registration/:userid', tokenService.verifyCommonUser, paymentController.registrationPayment);
 router.post('/contribution/:userid', tokenService.verifyCommonUser, paymentController.contributionPayment);
-router.post('/RazorPay/CreateOrder', paymentController.createOrder);
+router.post('/RazorPay/CreateOrder', tokenService.verifyCommonUser, paymentController.createOrder);
+router.get('/RazorPay/OrderStatus/:orderId', paymentController.getOrderStatus);
 
 
 module.exports = router;

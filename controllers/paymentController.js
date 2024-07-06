@@ -31,6 +31,27 @@ exports.createOrder = async (req, res) => {
 };
 
 
+exports.getOrderStatus = async (req, res) => {
+  const { orderId } = req.params; 
+
+  try {
+
+    const order = await razorpay.orders.fetch(orderId);
+
+    const status = order.status;
+
+    const orderStatusResponse = {
+      OrderId: orderId,
+      Status: status
+    };
+
+    res.status(200).json(order);
+  } catch (error) {
+    res.status(400).json({ error: error.toString() });
+  }
+};
+
+
 
 exports.getAllPayment = async (req, res, next) => {
     try {
