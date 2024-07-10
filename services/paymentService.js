@@ -92,7 +92,7 @@ exports.registrationPayment = async (userid, conbData) => {
         .input('paidUnit', conbData.paidUnit)
         .input('payMode', conbData.payMode)
         .input('paymentStatus',conbData.paymentStatus)
-        .input('PaymentPaymentId', conbData.PaymentRef)
+        .input('PaymentPaymentId', conbData.PaymentPaymentId)
         .input('PaymentOrderId', conbData.PaymentOrderId)
         .input('PaymentSignature', conbData.PaymentSignature)
         .query(`
@@ -165,8 +165,9 @@ exports.registrationPayment = async (userid, conbData) => {
         .input('paidUnit', conbData.paidUnit)
         .input('payMode', conbData.payMode)
         .input('paymentStatus', conbData.paymentStatus)
-        .input('contributionPaymentRef', conbData.contributionPaymentRef)
+        .input('contributionPaymentId', conbData.contributionPaymentId)
         .input('contributionOrderId', conbData.contributionOrderId)
+        .input('contributionSignature', conbData.contributionSignature)
         .query(`
           INSERT INTO KHRA_MemberContributions 
           (contributionId, memberId, contributionAmount, paidDate, paidBy, paidDistrict, paidUnit, payMode, paymentStatus, contributionPaymentRef, contributionOrderId)

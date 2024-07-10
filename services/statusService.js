@@ -17,7 +17,7 @@ exports.getAccStatusAndPaymentHistory = async (userId) => {
         .query(`
           SELECT ph.PaymentOrderId, ph.PaymentPaymentId, ph.PaymentSignature
           FROM KHRA_MemberPayment ph
-          WHERE ph.paymentStatus = 'pending' AND ph.memberId = @memberId
+          WHERE ph.paymentStatus = 'pending' AND ph.memberId = @memberId AND ph.paymentTypeId = 1 
         `);
 
       const pendingPayments = paymentHistoryResult.recordset;
@@ -33,9 +33,9 @@ exports.getAccStatusAndPaymentHistory = async (userId) => {
       const paymentCoHistoryResult = await pool.request()
       .input('memberId', userStatus.memberId)
       .query(`
-        SELECT ph.contributionPaymentId, ph.contributionPaymentId, ph.contributionSignature
-        FROM KHRA_MemberContributions ph
-        WHERE ph.paymentStatus = 'pending' AND ph.memberId = @memberId
+        SELECT ph.PaymentOrderId, ph.PaymentPaymentId, ph.PaymentSignature
+        FROM KHRA_MemberPayment ph
+        WHERE ph.paymentStatus = 'pending' AND ph.memberId = @memberId AND ph.paymentTypeId = 2 
       `);
 
     const pendingCoPayments = paymentCoHistoryResult.recordset;
