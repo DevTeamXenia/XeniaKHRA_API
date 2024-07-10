@@ -174,22 +174,25 @@ exports.registrationPayment = async (userid, conbData) => {
         .input('contributionSignature', conbData.contributionSignature)
         .query(`
           INSERT INTO KHRA_MemberContributions 
-          (contributionId, memberId, contributionAmount, paidDate, paidBy, paidDistrict, paidUnit, payMode, paymentStatus, contributionPaymentRef, contributionOrderId)
+          (contributionId, memberId, contributionAmount, paidDate, paidBy, paidDistrict, paidUnit, payMode, paymentStatus, contributionPaymentId, contributionOrderId, contributionSignature)
           VALUES 
-          (@contributionId, @memberId, @contributionAmount, @paidDate, @paidBy, @paidDistrict, @paidUnit, @payMode, @paymentStatus, @contributionPaymentRef, @contributionOrderId);
+          (@contributionId, @memberId, @contributionAmount, @paidDate, @paidBy, @paidDistrict, @paidUnit, @payMode, @paymentStatus, @contributionPaymentId, @contributionOrderId, @contributionSignature);
         `);
   
       if (insertResult.rowsAffected && insertResult.rowsAffected[0] > 0) {
-     
-          await pool.request()
-            .input('userid', userid)
-            .query(`
-              UPDATE KHRA_Members 
-              SET memberStatus = 9
-              WHERE memberUserId = @userid;
-            `);
 
-        return { status: 'success', message: 'contribution Payment successful' };
+        if(conbData.paymentStatus == 'success'){
+          await pool.request()
+          .input('userid', userid)
+          .query(`
+            UPDATE KHRA_Members 
+            SET memberStatus = 9
+            WHERE memberUserId = @userid;
+          `);
+        }
+     
+        return { status: 'success', message: 'contribution Payment update successful' };
+        
       } else {
         return { status: 'fail', message: 'Payment failed' };
       }
