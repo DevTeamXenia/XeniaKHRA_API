@@ -26,7 +26,7 @@ exports.getAccStatusAndPaymentHistory = async (userId) => {
       if (pendingPayments.length > 0) {
         return {
           status: userStatus,
-          pendingPayments: pendingPayments
+          pendingPayments: pendingPayments[0]
         };
       }
     }else if(userStatus.statusId === 3){
@@ -44,7 +44,7 @@ exports.getAccStatusAndPaymentHistory = async (userId) => {
     if (pendingCoPayments.length > 0) {
       return {
         status: userStatus,
-        pendingPayments: pendingCoPayments
+        pendingPayments: pendingCoPayments[0]
       };
     }
         
