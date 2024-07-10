@@ -53,3 +53,17 @@ exports.getfamilymember = async (req, res, next) => {
   }
 };
 
+
+exports.memberDeactivation = async (req, res, next) => {
+  const { userId } = req.params;
+  try {
+    const updated = await statusService.memberDeactivation(userId, req.body);
+    if (updated) {
+        res.status(200).json(updated);
+    } else {
+      res.status(404).json({ error: 'Memeber not found' });
+    }
+  } catch (error) {
+    next(error);
+  }
+};

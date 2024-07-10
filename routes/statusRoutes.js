@@ -10,6 +10,6 @@ router.get('/PrivacyPolicy/:statusId',  statusController.getPrivacyPolicy);
 
 router.get('/familymember/:userId', tokenService.verifyCommonUser, statusController.getfamilymember);
 
-
+router.put('/deactivate/:userId', tokenService.verifyCommonUser, statusController.memberDeactivation);
 
 module.exports = router;

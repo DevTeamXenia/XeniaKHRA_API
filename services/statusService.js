@@ -184,4 +184,30 @@ exports.getfamilymember = async (userId) => {
   };
   
   
+  exports.memberDeactivation = async (userId, conbData) => {
+    try {
+      const pool = await db;
   
+      const result = await pool.request()
+        .input('userId', userId)
+        .input('memberReviseRemarks', conbData.memberReviseRemarks || '')
+        .query(`
+          UPDATE KHRA_Users
+          SET userStatus = 0
+          WHERE userId = @userId;
+  
+          UPDATE KHRA_Members
+          SET memberStatus = 12, memberReviseRemarks = @memberReviseRemarks, memberActiveStatus = 0
+          WHERE memberUserId = @userId;
+        `);
+  
+      if (result.rowsAffected && result.rowsAffected[1] > 0) {
+        return { status: 'success', message: 'Member deactivated successfully' };
+      } else {
+        return null; 
+      }
+  
+    } catch (error) {
+      throw error;
+    }
+  };
