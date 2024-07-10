@@ -12,5 +12,4 @@ router.post('/RazorPay/CreateOrder', tokenService.verifyCommonUser, paymentContr
 router.get('/RazorPay/OrderCapture/:paymentId', tokenService.verifyCommonUser, paymentController.getOrderStatus);
 
 
-
 module.exports = router;

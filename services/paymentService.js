@@ -105,27 +105,31 @@ exports.registrationPayment = async (userid, conbData) => {
       if (insertResult.rowsAffected && insertResult.rowsAffected[0] > 0) {
 
         let memberStatus;
-        if (conbData.paymentTypeId === 1) {
-          memberStatus = 3;
-        } else if (conbData.paymentTypeId === 2) {
-          memberStatus = 4;
+
+        if(conbData.paymentStatus === 'success'){
+          if (conbData.paymentTypeId === 1) {
+            memberStatus = 3;
+          } else if (conbData.paymentTypeId === 2) {
+            memberStatus = 4;
+          }
+          else if (conbData.paymentTypeId === 4) {
+            memberStatus = 11;
+          }
+    
+          if (memberStatus) {
+            await pool.request()
+              .input('userid', userid)
+              .input('memberStatus', memberStatus)
+              .query(`
+                UPDATE KHRA_Members 
+                SET memberStatus = @memberStatus 
+                WHERE memberUserId = @userid;
+              `);
+          }
         }
-        else if (conbData.paymentTypeId === 4) {
-          memberStatus = 11;
-        }
-  
-        if (memberStatus) {
-          await pool.request()
-            .input('userid', userid)
-            .input('memberStatus', memberStatus)
-            .query(`
-              UPDATE KHRA_Members 
-              SET memberStatus = @memberStatus 
-              WHERE memberUserId = @userid;
-            `);
-        }
-  
-        return { status: 'success', message: 'Payment successful' };
+       
+        return { status: 'success', message: 'Payment update successful' };
+
       } else {
         return { status: 'fail', message: 'Payment failed' };
       }
