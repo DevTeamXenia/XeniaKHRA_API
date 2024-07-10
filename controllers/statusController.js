@@ -4,7 +4,7 @@ const statusService = require('../services/statusService');
 exports.getaccstatus = async (req, res, next) => {
     try {
       const userid = req.params.userid;
-      const status = await statusService.getaccstatus(userid);
+      const status = await statusService.getAccStatusAndPaymentHistory(userid);
       res.json(status);
     } catch (error) {
       next(error);

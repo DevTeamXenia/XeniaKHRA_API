@@ -1,19 +1,60 @@
 const db = require('../config/db');
 
 
-exports.getaccstatus = async (userId) => {
-    try {
-      const pool = await db;
-      
-      const result = await pool.request()
-        .input('userId', userId)
-        .query('SELECT t.status, t.statusId FROM KHRA_Status t, KHRA_Members d WHERE t.statusId = d.memberStatus AND d.memberUserId = @userId');    
-      return result.recordset;
-    } catch (error) {
-      throw error;
-    }
-  };
+exports.getAccStatusAndPaymentHistory = async (userId) => {
+  try {
+    const pool = await db;
 
+    const statusResult = await pool.request()
+      .input('userId', userId)
+      .query('SELECT t.status, t.statusId, d.memberId FROM KHRA_Status t, KHRA_Members d WHERE t.statusId = d.memberStatus AND d.memberUserId = @userId');
+
+    const userStatus = statusResult.recordset[0];
+
+    if (userStatus.statusId === 2) {
+      const paymentHistoryResult = await pool.request()
+        .input('memberId', userStatus.memberId)
+        .query(`
+          SELECT ph.PaymentOrderId, ph.PaymentPaymentId, ph.PaymentSignature
+          FROM KHRA_MemberPayment ph
+          WHERE ph.paymentStatus = 'pending' AND ph.memberId = @memberId
+        `);
+
+      const pendingPayments = paymentHistoryResult.recordset;
+
+
+      if (pendingPayments.length > 0) {
+        return {
+          status: userStatus,
+          pendingPayments: pendingPayments
+        };
+      }
+    }else if(userStatus.statusId === 3){
+      const paymentCoHistoryResult = await pool.request()
+      .input('memberId', userStatus.memberId)
+      .query(`
+        SELECT ph.contributionPaymentId, ph.contributionPaymentId, ph.contributionSignature
+        FROM KHRA_MemberContributions ph
+        WHERE ph.paymentStatus = 'pending' AND ph.memberId = @memberId
+      `);
+
+    const pendingCoPayments = paymentCoHistoryResult.recordset;
+
+
+    if (pendingCoPayments.length > 0) {
+      return {
+        status: userStatus,
+        pendingPayments: pendingCoPayments
+      };
+    }
+        
+  }
+
+    return { status: userStatus};
+  } catch (error) {
+    throw error;
+  }
+};
 
 
   exports.getTermsAndConditions = async (statusId) => {

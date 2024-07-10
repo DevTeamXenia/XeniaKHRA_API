@@ -92,13 +92,14 @@ exports.registrationPayment = async (userid, conbData) => {
         .input('paidUnit', conbData.paidUnit)
         .input('payMode', conbData.payMode)
         .input('paymentStatus',conbData.paymentStatus)
-        .input('PaymentRef', conbData.PaymentRef)
+        .input('PaymentPaymentId', conbData.PaymentRef)
         .input('PaymentOrderId', conbData.PaymentOrderId)
+        .input('PaymentSignature', conbData.PaymentSignature)
         .query(`
           INSERT INTO KHRA_MemberPayment 
-          (memberId, paidAmount, paymentTypeId, paidDate, paidBy, paidDistrict, paidUnit, payMode, paymentStatus, PaymentRef, PaymentOrderId)
+          (memberId, paidAmount, paymentTypeId, paidDate, paidBy, paidDistrict, paidUnit, payMode, paymentStatus, PaymentPaymentId, PaymentOrderId,PaymentSignature)
           VALUES 
-          (@memberId, @paidAmount, @paymentTypeId, @paidDate, @paidBy, @paidDistrict, @paidUnit, @payMode, @paymentStatus, @PaymentRef, @PaymentOrderId);
+          (@memberId, @paidAmount, @paymentTypeId, @paidDate, @paidBy, @paidDistrict, @paidUnit, @payMode, @paymentStatus, @PaymentPaymentId, @PaymentOrderId, @PaymentSignature);
         `);
   
       if (insertResult.rowsAffected && insertResult.rowsAffected[0] > 0) {
