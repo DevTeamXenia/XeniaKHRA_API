@@ -211,7 +211,7 @@ exports.loginUser = async (userData) => {
     const result = await pool.request()
       .input('username', userData.username)
       .input('password', userData.password)
-      .query('SELECT * FROM KHRA_Users WHERE userName = @username');
+      .query('SELECT * FROM KHRA_Users WHERE userName = @username and userStatus=1');
     const user = result.recordset[0];
 
     if (!user) {
