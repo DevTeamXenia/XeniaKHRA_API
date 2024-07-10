@@ -9,7 +9,7 @@ router.put('/update', tokenService.verifyCommonUser, paymentController.updatePay
 router.post('/registration/:userid', tokenService.verifyCommonUser, paymentController.registrationPayment);
 router.post('/contribution/:userid', tokenService.verifyCommonUser, paymentController.contributionPayment);
 router.post('/RazorPay/CreateOrder', tokenService.verifyCommonUser, paymentController.createOrder);
-router.get('/RazorPay/OrderCapture/:paymentId', paymentController.getOrderStatus);
+router.get('/RazorPay/OrderCapture/:paymentId', tokenService.verifyCommonUser, paymentController.getOrderStatus);
 
 
 
