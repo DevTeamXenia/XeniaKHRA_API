@@ -109,6 +109,9 @@ exports.registrationPayment = async (userid, conbData) => {
         } else if (conbData.paymentTypeId === 2) {
           memberStatus = 4;
         }
+        else if (conbData.paymentTypeId === 4) {
+          memberStatus = 11;
+        }
   
         if (memberStatus) {
           await pool.request()
