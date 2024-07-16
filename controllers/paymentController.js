@@ -21,7 +21,8 @@ exports.createOrder = async (req, res) => {
     const order = await razorpay.orders.create(options);
 
     const rzOrderResponse = {
-      OrderId: order.id
+      OrderId: order.id,
+      payAmount :order.amount
     };
 
     res.status(200).json(rzOrderResponse);

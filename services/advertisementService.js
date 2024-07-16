@@ -252,3 +252,25 @@ exports.ApproveAdvertisement = async (advertisementId, activeStatus) => {
       throw error;
     }
   };
+
+
+  exports.getadvertisementList = async () => {
+    try {
+        const pool = await db;
+        const result = await pool.request()
+            .query(`SELECT advertisementName,
+                           fileUrl,
+                           advertisementContent 
+                    FROM KHRA_Advertisement 
+                    WHERE activeStatus=1 
+                      AND advertisementApproveStatus=1`);
+
+        return result.recordset.map(row => ({
+            advertisementName: row.advertisementName,
+            fileUrl: row.fileUrl,
+            advertisementContent: row.advertisementContent
+        }));
+    } catch (error) {
+        throw error;
+    }
+};

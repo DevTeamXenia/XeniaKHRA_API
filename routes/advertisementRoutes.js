@@ -9,5 +9,5 @@ router.get('/search/:partialName', tokenService.verifyWebUser, advertisementCont
 
 router.get('/state', tokenService.verifyWebUser, advertisementController.getStateadvertisement);
 router.put('/Approve/:advertisementId', tokenService.verifyWebUser, advertisementController.ApproveAdvertisement);
-
+router.get('/advertisementList',  advertisementController.getadvertisementList);
 module.exports = router;

@@ -92,7 +92,7 @@ exports.registrationPayment = async (userid, conbData) => {
         .input('paidUnit', conbData.paidUnit)
         .input('payMode', conbData.payMode)
         .input('paymentStatus',conbData.paymentStatus)
-        .input('PaymentPaymentId', conbData.PaymentPaymentId)
+        .input('PaymentPaymentId', conbData.PaymentRef)
         .input('PaymentOrderId', conbData.PaymentOrderId)
         .input('PaymentSignature', conbData.PaymentSignature)
         .query(`
@@ -169,7 +169,7 @@ exports.registrationPayment = async (userid, conbData) => {
         .input('paidUnit', conbData.paidUnit)
         .input('payMode', conbData.payMode)
         .input('paymentStatus', conbData.paymentStatus)
-        .input('contributionPaymentId', conbData.contributionPaymentId)
+        .input('contributionPaymentId', conbData.contributionPaymentRef)
         .input('contributionOrderId', conbData.contributionOrderId)
         .input('contributionSignature', conbData.contributionSignature)
         .query(`

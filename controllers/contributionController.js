@@ -224,7 +224,8 @@ exports.getStateContribution = async (req, res, next) => {
 //-----Contribution Pending Details------//
 exports.conPendingDetails = async (req, res, next) => {
   try {
-      const pendingDetails = await contributionService.conPendingDetails();
+      const userId = req.params.userid;
+      const pendingDetails = await contributionService.conPendingDetails(userId);
       res.json({ status: 'success', data: pendingDetails });
   } catch (error) {
       next(error);
@@ -235,7 +236,8 @@ exports.conPendingDetails = async (req, res, next) => {
 //-----Contribution Payed Details------//
 exports.conPayedDetails = async (req, res, next) => {
   try {
-      const payedDetails = await contributionService.conPayedDetails();
+      const userId = req.params.userid;
+      const payedDetails = await contributionService.conPayedDetails(userId);
       res.json({ status: 'success', data: payedDetails });
   } catch (error) {
       next(error);

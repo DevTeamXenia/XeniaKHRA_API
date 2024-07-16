@@ -99,3 +99,19 @@ exports.getStateadvertisement = async (req, res, next) => {
       next(error);
     }
   };
+
+
+  exports.getadvertisementList = async (req, res, next) => {
+    try {
+        const advertisements = await advertisementService.getadvertisementList();
+
+        const response = {
+            status: "success",
+            data: advertisements
+        };
+
+        res.json(response);
+    } catch (error) {
+        next(error);
+    }
+};

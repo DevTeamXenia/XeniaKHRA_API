@@ -9,8 +9,8 @@ router.put('/:ContributionId',tokenService.verifyWebUser, contributionController
 router.get('/state/:status/:ContributionId?', tokenService.verifyWebUser, contributionController.getStateContribution);
 router.get('/district/:status/:districtid?/:ContributionId?', tokenService.verifyWebUser, contributionController.getDistrictContribution);
 router.get('/unit/:status/:unitid?/:ContributionId?', tokenService.verifyWebUser, contributionController.getUnitContribution);
-router.get('/pending/memberDtls',tokenService.verifyAppUser,contributionController.conPendingDetails);
-router.get('/payed/memberDtls',tokenService.verifyAppUser,contributionController.conPayedDetails);
+router.get('/pending/memberDtls/:userid',tokenService.verifyAppUser,contributionController.conPendingDetails);
+router.get('/payed/memberDtls/:userid',tokenService.verifyAppUser,contributionController.conPayedDetails);
 router.put('/Approve/:contributionId', tokenService.verifyWebUser, contributionController.ApproveContribution);
 
 

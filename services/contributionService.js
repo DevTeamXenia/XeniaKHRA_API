@@ -580,51 +580,84 @@ exports.getStateApproveContribution = async ({ page, limit, searchText }) => {
 
 //-----Contribution Pending Details------//
 
-exports.conPendingDetails = async () => {
-    try {
-        const pool = await db;
-        const result = await pool.request().query(`
-            SELECT DISTINCT m.memberBusinessName, m.memberName as ownerName, d.memberName, g.groupLevel as memberType, c.contributionAmount, c.contributionId, d.memberUserId
-            FROM KHRA_Users u
-            JOIN KHRA_Members m ON u.userId = m.memberUserId
-            JOIN KHRA_Members d ON u.userId = d.memberParentId
-            JOIN KHRA_MemberGroups g ON d.memberGroupId = g.groupId
-            JOIN KHRA_Contributions c ON m.memberId = c.contributionMemberId
-            WHERE c.contributionMemberId NOT IN (
-                SELECT memberId 
-                FROM KHRA_MemberContributions                
-            ) AND d.memberStatus<>9
-        `);
+exports.conPendingDetails = async (userId) => {
+  try {
+      const pool = await db;
+      const result = await pool.request()
+        .input('userId', userId) 
+        .query(`
+                 SELECT DISTINCT 
+                    m.memberBusinessName, 
+                    m.memberName AS ownerName, 
+                    d.memberName, 
+                    g.groupLevel AS memberType,
+                    (SELECT t.contributionAmount
+                    FROM KHRA_Contributions t
+                    JOIN KHRA_Members a ON t.contributionMemberId = a.memberId
+                    WHERE a.memberParentId = d.memberParentId
+                    AND t.contributionId = (
+                        SELECT MAX(t2.contributionId)
+                        FROM KHRA_Contributions t2
+                        JOIN KHRA_Members a2 ON t2.contributionMemberId = a2.memberId
+                        WHERE a2.memberParentId = d.memberParentId
+                    )) AS contributionAmount,
+                    (SELECT t.contributionId
+                    FROM KHRA_Contributions t
+                    JOIN KHRA_Members a ON t.contributionMemberId = a.memberId
+                    WHERE a.memberParentId = d.memberParentId
+                    AND t.contributionId = (
+                        SELECT MAX(t2.contributionId)
+                        FROM KHRA_Contributions t2
+                        JOIN KHRA_Members a2 ON t2.contributionMemberId = a2.memberId
+                        WHERE a2.memberParentId = d.memberParentId
+                    )) AS contributionId,
+                    d.memberUserId, 
+                    d.memberParentId
+                    FROM KHRA_Users u
+                    JOIN KHRA_Members m ON u.userId = m.memberUserId
+                    JOIN KHRA_Members d ON u.userId = d.memberParentId
+                    JOIN KHRA_MemberGroups g ON d.memberGroupId = g.groupId
+                    WHERE m.memberUserId NOT IN (
+                    SELECT memberId 
+                    FROM KHRA_MemberContributions                
+                    ) 
+                    AND d.memberId NOT IN (
+                    SELECT contributionMemberId 
+                    FROM KHRA_Contributions                
+                    ) 
+                    AND d.memberStatus NOT IN(8,9,10,12) 		  
+                    AND d.memberParentId = @userId
+              `);
 
-        const groupedResult = result.recordset.reduce((acc, row) => {
-            let owner = acc.find(o => o.ownerData.memberBusinessName === row.memberBusinessName && o.ownerData.ownerName === row.ownerName);
-            if (!owner) {
-                owner = {
-                    ownerData: {
-                        memberBusinessName: row.memberBusinessName,
-                        ownerName: row.ownerName
-                    },
-                    MemberSubData: []
-                };
-                acc.push(owner);
-            }
+      const groupedResult = result.recordset.reduce((acc, row) => {
+          let owner = acc.find(o => o.ownerData.memberBusinessName === row.memberBusinessName && o.ownerData.ownerName === row.ownerName);
+          if (!owner) {
+              owner = {
+                  ownerData: {
+                      memberBusinessName: row.memberBusinessName,
+                      ownerName: row.ownerName
+                  },
+                  MemberSubData: []
+              };
+              acc.push(owner);
+          }
 
-            owner.MemberSubData.push({
-                contributionId: row.contributionId,
-                memberType: row.memberType,
-                memberName: row.memberName,
-                contributionAmount: row.contributionAmount,
-                memberUserId: row.memberUserId
-            });
+          owner.MemberSubData.push({
+              contributionId: row.contributionId,
+              memberType: row.memberType,
+              memberName: row.memberName,
+              contributionAmount: row.contributionAmount,
+              memberUserId: row.memberUserId
+          });
 
-            return acc;
-        }, []);
+          return acc;
+      }, []);
 
-        return groupedResult;
+      return groupedResult;
 
-    } catch (error) {
-        throw error;
-    }
+  } catch (error) {
+      throw error;
+  }
 };
 
 
@@ -665,49 +698,23 @@ exports.ApproveContribution = async (contributionId, activeStatus) => {
 };
 
 
-
 //-----Contribution Payed Details------//
-// exports.conPayedDetails = async () => {
-//     try {
-//         const pool = await db;
-//         const result = await pool.request().query(`
-//             SELECT DISTINCT 
-//                 CONCAT(c.contributionText, '(', m.memberName, ')') AS contributionDetail,
-//                 k.paidDate,
-//                 k.contributionPaymentRef
-//             FROM KHRA_Users u
-//             JOIN KHRA_Members m ON u.userId = m.memberUserId
-//             JOIN KHRA_Members d ON u.userId = d.memberParentId
-//             JOIN KHRA_MemberContributions k ON d.memberId = k.memberId
-//             JOIN KHRA_MemberGroups g ON d.memberGroupId = g.groupId
-//             JOIN KHRA_Contributions c ON d.memberId = c.contributionMemberId
-//             WHERE c.contributionMemberId IN (
-//                 SELECT memberId 
-//                 FROM KHRA_MemberContributions 
-//                 WHERE contributionPaymentRef IS NOT NULL
-//             );
-//         `);
-
-//         return result.recordset;
-//     } catch (error) {
-//         throw error;
-//     }
-// };
-
-exports.conPayedDetails = async () => {
+exports.conPayedDetails = async (userId) => {
   try {
       const pool = await db;
-      const result = await pool.request().query(`
-          				SELECT DISTINCT 
-                CONCAT(c.contributionText, '(', m.memberName, ')') AS contributionDetail,
-                k.paidDate,
-                k.contributionPaymentRef  
-				FROM KHRA_Users u
-            JOIN KHRA_Members m ON u.userId = m.memberUserId
-            JOIN KHRA_MemberContributions k ON m.memberId = k.memberId
-            JOIN KHRA_MemberGroups g ON m.memberGroupId = g.groupId
-            JOIN KHRA_Contributions c ON k.contributionId = c.contributionId
-            WHERE m.memberStatus=9
+      const result = await pool.request()
+        .input('userId', userId) 
+        .query(`
+          SELECT DISTINCT 
+            CONCAT(c.contributionText, '(', m.memberName, ')') AS contributionDetail,
+            k.paidDate,
+            k.contributionPaymentId  
+          FROM KHRA_Users u
+          JOIN KHRA_Members m ON u.userId = m.memberUserId
+          JOIN KHRA_MemberContributions k ON m.memberId = k.memberId
+          JOIN KHRA_MemberGroups g ON m.memberGroupId = g.groupId
+          JOIN KHRA_Contributions c ON k.contributionId = c.contributionId
+          WHERE m.memberStatus = 9 AND m.memberParentId = @userId
       `);
       return result.recordset;
   } catch (error) {

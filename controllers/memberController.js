@@ -5,9 +5,9 @@ exports.getmember = async (req, res, next) => {
   try {
     const membershipNumber = req.params.membershipNumber;
 
-    // Assuming the prefix is always 4 characters long (e.g., KHRA)
-    const prefix = membershipNumber.substring(0, 4);
-    const number = membershipNumber.substring(4);
+    // Assuming the format KH07040635 and reconstructing to KH/07/04/0635
+    const prefix = `KH/${membershipNumber.substring(2, 4)}/${membershipNumber.substring(4, 6)}/`;
+    const number = membershipNumber.substring(6);
 
     const member = await memberService.getmember(prefix, number);
     res.json(member);

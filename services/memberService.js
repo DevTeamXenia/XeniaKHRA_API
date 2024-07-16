@@ -6,15 +6,22 @@ exports.getmember = async (membershipNumberPrefix, membershipNumber) => {
   try {
     const pool = await db;
     const query = `
-      SELECT t.memberBusinessName, t.memberBusinessAddress, s.districtName, u.unitName, t.memberUserId, t.memberDistrictId, t.memberUnitId  
+      SELECT 
+        t.memberBusinessName, 
+        t.memberBusinessAddress, 
+        s.districtName, 
+        u.unitName, 
+        t.memberUserId, 
+        t.memberDistrictId, 
+        t.memberUnitId  
       FROM KHRA_Members t
       JOIN KHRA_Nominee d ON t.memberId = d.nomineeMemberId
       JOIN KHRA_Users f ON f.userId = t.memberUserId
       JOIN KHRA_Districts s ON s.districtId = t.memberDistrictId
       JOIN KHRA_Units u ON u.unitId = t.memberUnitId
       WHERE d.nomineeStatus = 1 
-            AND t.membershipNumberPrefix = @prefix 
-            AND t.membershipNumber = @number`;
+        AND t.membershipNumberPrefix = @prefix 
+        AND t.membershipNumber = @number`;
 
     const result = await pool.request()
       .input('prefix', membershipNumberPrefix)
