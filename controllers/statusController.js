@@ -1,6 +1,18 @@
 const statusService = require('../services/statusService');
 
 
+exports.checkServerStatus= async (req, res) => {
+  try {
+    const status = await statusService.getCheckServerStatus();
+
+    res.status(200).json(status);
+  } catch (error) {
+    console.error('Error in checkServerStatusController:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+
 exports.getaccstatus = async (req, res, next) => {
     try {
       const userid = req.params.userid;

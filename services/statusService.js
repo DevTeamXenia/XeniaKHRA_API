@@ -1,6 +1,22 @@
 const db = require('../config/db');
 
 
+
+exports.getCheckServerStatus = async () => {
+  try {
+    const pool = await db;
+    const statusResult = await pool.request().query('SELECT * FROM KHRA_Server');
+    const response = statusResult.recordset[0];
+
+    return response;
+  } catch (error) {
+    console.error('Error fetching server status:', error);
+    throw error; 
+  }
+};
+
+
+
 exports.getAccStatusAndPaymentHistory = async (userId) => {
   try {
     const pool = await db;
