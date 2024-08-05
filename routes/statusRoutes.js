@@ -3,7 +3,7 @@ const router = express.Router();
 const statusController = require('../controllers/statusController')
 const tokenService = require('../utils/JWTtokenService');
 
-router.get('check/:userid',tokenService.verifyCommonUser, statusController.getaccstatus);
+router.get('/check/:userid',tokenService.verifyCommonUser, statusController.getaccstatus);
 
 router.get('/server',statusController.checkServerStatus);
 
