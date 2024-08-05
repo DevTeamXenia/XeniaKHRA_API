@@ -15,7 +15,7 @@ exports.createOrder = async (req, res) => {
       amount: amount * 100, 
       currency: currency,
       receipt: orderId,
-      payment_capture: 0 
+      payment_capture: 1 
     };
 
     const order = await razorpay.orders.create(options);
