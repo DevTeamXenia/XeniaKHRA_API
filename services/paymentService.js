@@ -64,6 +64,10 @@ function formatDateToLocalTime(date) {
 
 exports.registrationPayment = async (userid, conbData) => {
     try {
+
+      if (!conbData.PaymentRef || !conbData.PaymentOrderId || !conbData.PaymentSignature) {
+        return { status: 'fail', message: 'PaymentRef, PaymentOrderId, and PaymentSignature are required' };
+      }
       const pool = await db;
       const currentDate = new Date();
       const paidDate = formatDateToLocalTime(currentDate);
