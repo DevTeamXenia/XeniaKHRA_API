@@ -173,7 +173,7 @@ exports.registrationPayment = async (userid, conbData) => {
         .input('paidUnit', conbData.paidUnit)
         .input('payMode', conbData.payMode)
         .input('paymentStatus', conbData.paymentStatus)
-        .input('contributionPaymentId', conbData.contributionPaymentRef)
+        .input('contributionPaymentId', conbData.contributionPaymentId)
         .input('contributionOrderId', conbData.contributionOrderId)
         .input('contributionSignature', conbData.contributionSignature)
         .query(`
