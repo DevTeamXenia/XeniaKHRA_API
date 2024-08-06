@@ -1,4 +1,6 @@
 const express = require('express');
+const swaggerUi = require('swagger-ui-express');
+const swaggerDocs = require('./config/swaggerConfig');
 const path = require("path");
 const cors = require("cors");
 
@@ -32,6 +34,8 @@ app.get("/", (req, res) => {
     res.status(500).send("Internal Server Error");
   }
 });
+
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
 app.use("/v1/api/user", authRoutes);
 app.use("/v1/api/unit", unitRoutes);

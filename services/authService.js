@@ -61,10 +61,8 @@ exports.createUser = async (userData) => {
 
     if (resultUser.rowsAffected && resultUser.rowsAffected[0] > 0) {
       const userId = resultUser.recordset[0].userId;
-       //const paddedUserId = userId.toString().padStart(1, '0');
-      // const id = '00' + paddedUserId;
-
-      const paddedUserId = userId.toString().padStart(4, '0'); // Ensure it is always 4 digits
+ 
+      const paddedUserId = userId.toString().padStart(4, '0'); 
       const newMembershipNumber = paddedUserId; 
 
       const currentDate = new Date();
@@ -79,7 +77,6 @@ exports.createUser = async (userData) => {
         .input('memberStatus', 2)
         .input('memberReviseRemarks', userData.memberReviseRemarks)
         .input('membershipNumberPrefix', 'KHRA')
-        // .input('membershipNumber', id)
         .input('membershipNumber', newMembershipNumber)
         .input('membershipDate', membershipDate)
         .input('memberActiveStatus', false)
@@ -120,7 +117,6 @@ exports.createUser = async (userData) => {
       if (resultMember.rowsAffected && resultMember.rowsAffected[0] > 0) {
         const memberId = resultMember.recordset[0].memberId;
 
-        // Fetch the prefix using the provided query
         const prefixResult = await transaction.request()
           .input('memberId', memberId)
           .query(`
@@ -138,7 +134,6 @@ exports.createUser = async (userData) => {
 
         const newPrefix = prefixResult.recordset[0].membershipNumberPrefix;
 
-        // Update the membershipNumberPrefix in KHRA_Members
         await transaction.request()
           .input('memberId', memberId)
           .input('membershipNumberPrefix', newPrefix)
@@ -229,24 +224,9 @@ exports.loginUser = async (userData) => {
         .query('UPDATE KHRA_Users SET firebaseToken = @firebaseToken WHERE userId = @userId');
     }
       
-      if(user.userGroupId==1){
-        const userobj={"userType":user.userGroupId,"userName":user.userName,"userId":user.userId}
-        const token = generateToken(userobj); 
-        return { token }; 
-      }
-      
-      else if(user.userGroupId==2){
-        const userobj={"userType":user.userGroupId,"userName":user.userName,"userId":user.userId,"loginId":user.userDistrictId}
-        const token = generateToken(userobj); 
-        return { token }; 
-      }
-
-      else{
         const userobj={"userType":user.userGroupId,"userName":user.userName,"userId":user.userId,"loginId":user.userUnitId,"districtId":user.userDistrictId,"unitId":user.userUnitId}
         const token = generateToken(userobj); 
         return { token }; 
-      }
-
       
     } catch (error) {
       throw error;
