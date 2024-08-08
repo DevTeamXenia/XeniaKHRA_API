@@ -41,17 +41,21 @@ exports.createInformation = async (conbData) => {
 
 function formatDateToLocalTime(date) {
     const pad = (number) => number.toString().padStart(2, '0');
-    const padMilliseconds = (number) => number.toString().padStart(3, '0');
-  
-    const year = date.getFullYear();
-    const month = pad(date.getMonth() + 1);
-    const day = pad(date.getDate());
-    const hours = pad(date.getHours());
-    const minutes = pad(date.getMinutes());
-    const seconds = pad(date.getSeconds());
-    const milliseconds = padMilliseconds(date.getMilliseconds());
-  
-    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}.${milliseconds}`;
+  const padMilliseconds = (number) => number.toString().padStart(3, '0');
+
+  // Convert UTC to IST
+  const istOffset = 330; // 5 hours 30 minutes in minutes
+  const localDate = new Date(date.getTime() + istOffset * 60000); // 60000 ms per minute
+
+  const year = localDate.getFullYear();
+  const month = pad(localDate.getMonth() + 1);
+  const day = pad(localDate.getDate());
+  const hours = pad(localDate.getHours());
+  const minutes = pad(localDate.getMinutes());
+  const seconds = pad(localDate.getSeconds());
+  const milliseconds = padMilliseconds(localDate.getMilliseconds());
+
+  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}.${milliseconds}`;
   }
 
 

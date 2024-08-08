@@ -31,7 +31,7 @@ exports.StatePendingContribution = async ({ page, limit, searchText, districtid,
         g.paidDate, 
         g.contributionAmount,
         g.payMode, 
-        g.contributionPaymentRef,
+        g.contributionPaymentId,
         k.contributionId, 
         k.contributionText
       FROM KHRA_Members t
@@ -137,7 +137,7 @@ exports.StatePayedContribution = async ({ page, limit, searchText, districtid, u
       WHERE g.memberId = t.memberId and  k.contributionMemberId  IN (
                 SELECT memberId 
                 FROM KHRA_MemberContributions 
-                WHERE contributionPaymentRef IS NOT NULL          
+                WHERE contributionPaymentId IS NOT NULL          
             )
     `;
 
@@ -153,7 +153,7 @@ exports.StatePayedContribution = async ({ page, limit, searchText, districtid, u
         g.paidDate, 
         g.contributionAmount,
         g.payMode, 
-        g.contributionPaymentRef,
+        g.contributionPaymentId,
         k.contributionId,
         k.contributionText 
       FROM KHRA_Members t
@@ -165,7 +165,7 @@ exports.StatePayedContribution = async ({ page, limit, searchText, districtid, u
       WHERE g.memberId = t.memberId and  k.contributionMemberId  IN (
                 SELECT memberId 
                 FROM KHRA_MemberContributions 
-                WHERE contributionPaymentRef IS NOT NULL          
+                WHERE contributionPaymentId IS NOT NULL          
             )
     `;
 
@@ -276,7 +276,7 @@ exports.DistrictPendingContribution = async ({ page, limit, searchText, district
         g.paidDate, 
         g.contributionAmount,
         g.payMode, 
-        g.contributionPaymentRef,
+        g.contributionPaymentId,
         k.contributionId,
         k.contributionText 
       FROM KHRA_Members t
@@ -384,7 +384,7 @@ exports.DistrictPayedContribution = async ({ page, limit, searchText, districtid
       WHERE g.memberId = t.memberId and  k.contributionMemberId  IN (
                 SELECT memberId 
                 FROM KHRA_MemberContributions 
-                WHERE contributionPaymentRef IS NOT NULL          
+                WHERE contributionPaymentId IS NOT NULL          
             )
     `;
 
@@ -400,7 +400,7 @@ exports.DistrictPayedContribution = async ({ page, limit, searchText, districtid
         g.paidDate, 
         g.contributionAmount,
         g.payMode, 
-        g.contributionPaymentRef,
+        g.contributionPaymentId,
         k.contributionId,
         k.contributionText 
       FROM KHRA_Members t
@@ -412,7 +412,7 @@ exports.DistrictPayedContribution = async ({ page, limit, searchText, districtid
       WHERE g.memberId = t.memberId and  k.contributionMemberId  IN (
                 SELECT memberId 
                 FROM KHRA_MemberContributions 
-                WHERE contributionPaymentRef IS NOT NULL          
+                WHERE contributionPaymentId IS NOT NULL          
             )
     `;
 
@@ -523,7 +523,7 @@ exports.UnitPendingContribution = async ({ page, limit, searchText, unitid ,from
         g.paidDate, 
         g.contributionAmount,
         g.payMode, 
-        g.contributionPaymentRef,
+        g.contributionPaymentId,
         k.contributionId,
         k.contributionText  
       FROM KHRA_Members t
@@ -622,7 +622,7 @@ exports.UnitPayedContribution = async ({ page, limit, searchText, unitid ,fromda
       WHERE g.memberId = t.memberId and  k.contributionMemberId  IN (
                 SELECT memberId 
                 FROM KHRA_MemberContributions 
-                WHERE contributionPaymentRef IS NOT NULL          
+                WHERE contributionPaymentId IS NOT NULL          
             )
     `;
 
@@ -638,7 +638,7 @@ exports.UnitPayedContribution = async ({ page, limit, searchText, unitid ,fromda
         g.paidDate, 
         g.contributionAmount,
         g.payMode, 
-        g.contributionPaymentRef,
+        g.contributionPaymentId,
         k.contributionId,
         k.contributionText 
       FROM KHRA_Members t
@@ -650,7 +650,7 @@ exports.UnitPayedContribution = async ({ page, limit, searchText, unitid ,fromda
       WHERE g.memberId = t.memberId and  k.contributionMemberId  IN (
                 SELECT memberId 
                 FROM KHRA_MemberContributions 
-                WHERE contributionPaymentRef IS NOT NULL          
+                WHERE contributionPaymentId IS NOT NULL          
             )
     `;
 
@@ -734,18 +734,18 @@ exports.paymentcontribution = async ({ page, limit, searchText, districtid, unit
       JOIN KHRA_Units u ON u.unitId = t.memberUnitId
       JOIN KHRA_MemberContributions g ON g.memberId = t.memberId
       JOIN KHRA_Contributions k ON k.contributionId = g.contributionId
-      WHERE g.memberId = t.memberId and g.contributionPaymentRef is not null
+      WHERE g.memberId = t.memberId and g.contributionPaymentId is not null
     `;
 
     let dataQuery = `
-      SELECT g.paidDate, u.unitName, 'Contributions' as type, k.contributionText as event, t.memberBusinessName, u.unitContactPerson, u.unitContactNumber, g.contributionPaymentRef
+      SELECT g.paidDate, u.unitName, 'Contributions' as type, k.contributionText as event, t.memberBusinessName, u.unitContactPerson, u.unitContactNumber, g.contributionPaymentId
       FROM KHRA_Members t
       JOIN KHRA_Users F ON F.userId = t.memberUserId
       JOIN KHRA_Districts s ON s.districtId = t.memberDistrictId
       JOIN KHRA_Units u ON u.unitId = t.memberUnitId
       JOIN KHRA_MemberContributions g ON g.memberId = t.memberId
       JOIN KHRA_Contributions k ON k.contributionId = g.contributionId
-      WHERE g.memberId = t.memberId and g.contributionPaymentRef is not null
+      WHERE g.memberId = t.memberId and g.contributionPaymentId is not null
     `;
 
     const inputParams = {
@@ -829,17 +829,17 @@ exports.paymentothers = async ({ page, limit, searchText, districtid, unitid, fr
     JOIN KHRA_Units u ON u.unitId = t.memberUnitId
     JOIN KHRA_MemberPayment g ON g.memberId = t.memberId
     JOIN KHRA_Settings x ON x.settingId = g.paymentTypeId
-    WHERE g.memberId = t.memberId and g.PaymentRef is not null`;
+    WHERE g.memberId = t.memberId and g.PaymentPaymentId is not null`;
 
     let dataQuery = `
-    SELECT g.paidDate, u.unitName, x.settingName as type, x.settingName as event, t.memberBusinessName, u.unitContactPerson, u.unitContactNumber, g.PaymentRef
+    SELECT g.paidDate, u.unitName, x.settingName as type, x.settingName as event, t.memberBusinessName, u.unitContactPerson, u.unitContactNumber, g.PaymentPaymentId
     FROM KHRA_Members t
     JOIN KHRA_Users F ON F.userId = t.memberUserId
     JOIN KHRA_Districts s ON s.districtId = t.memberDistrictId
     JOIN KHRA_Units u ON u.unitId = t.memberUnitId
     JOIN KHRA_MemberPayment g ON g.memberId = t.memberId
     JOIN KHRA_Settings x ON x.settingId = g.paymentTypeId
-    WHERE g.memberId = t.memberId and g.PaymentRef is not null`;
+    WHERE g.memberId = t.memberId and g.PaymentPaymentId is not null`;
 
     const inputParams = {
       searchText: `%${searchText}%`,
@@ -935,7 +935,7 @@ FROM (
         t.memberBusinessName, 
         u.unitContactPerson, 
         u.unitContactNumber, 
-        g.contributionPaymentRef,
+        g.contributionPaymentId,
         g.contributionAmount,
         0 AS paidAmount 
     FROM  KHRA_Members t
@@ -944,7 +944,7 @@ FROM (
     JOIN KHRA_Units u ON u.unitId = t.memberUnitId
     JOIN KHRA_MemberContributions g ON g.memberId = t.memberId
     JOIN  KHRA_Contributions k ON k.contributionId = g.contributionId
-    WHERE g.memberId = t.memberId AND g.contributionPaymentRef IS NOT NULL
+    WHERE g.memberId = t.memberId AND g.contributionPaymentId IS NOT NULL
     UNION ALL
     SELECT 
         g.paidDate, 
@@ -954,7 +954,7 @@ FROM (
         t.memberBusinessName, 
         u.unitContactPerson, 
         u.unitContactNumber, 
-        g.PaymentRef,
+        g.PaymentPaymentId,
         0 AS contributionAmount, 
         g.paidAmount
     FROM 
@@ -964,27 +964,27 @@ FROM (
     JOIN KHRA_Units u ON u.unitId = t.memberUnitId
     JOIN KHRA_MemberPayment g ON g.memberId = t.memberId
     JOIN KHRA_Settings x  ON x.settingId=g.paymentTypeId
-    WHERE g.memberId = t.memberId AND g.PaymentRef IS NOT NULL
+    WHERE g.memberId = t.memberId AND g.PaymentPaymentId IS NOT NULL
 ) AS combined_data`;
 
     let dataQuery = `
-    SELECT g.paidDate, u.unitName, 'Contributions' as type, k.contributionText as event, t.memberBusinessName, u.unitContactPerson, u.unitContactNumber, g.contributionPaymentRef
+    SELECT g.paidDate, u.unitName, 'Contributions' as type, k.contributionText as event, t.memberBusinessName, u.unitContactPerson, u.unitContactNumber, g.contributionPaymentId
       FROM KHRA_Members t
       JOIN KHRA_Users F ON F.userId = t.memberUserId
       JOIN KHRA_Districts s ON s.districtId = t.memberDistrictId
       JOIN KHRA_Units u ON u.unitId = t.memberUnitId
       JOIN KHRA_MemberContributions g ON g.memberId = t.memberId
       JOIN KHRA_Contributions k ON k.contributionId = g.contributionId
-      WHERE g.memberId = t.memberId and g.contributionPaymentRef is not null
+      WHERE g.memberId = t.memberId and g.contributionPaymentId is not null
 	  union all
-	  SELECT g.paidDate, u.unitName, x.settingName as type, x.settingName as event, t.memberBusinessName, u.unitContactPerson, u.unitContactNumber, g.PaymentRef
+	  SELECT g.paidDate, u.unitName, x.settingName as type, x.settingName as event, t.memberBusinessName, u.unitContactPerson, u.unitContactNumber, g.PaymentPaymentId
       FROM KHRA_Members t
       JOIN KHRA_Users F ON F.userId = t.memberUserId
       JOIN KHRA_Districts s ON s.districtId = t.memberDistrictId
       JOIN KHRA_Units u ON u.unitId = t.memberUnitId
       JOIN KHRA_MemberPayment g ON g.memberId = t.memberId
 	  JOIN KHRA_Settings x  ON x.settingId=g.paymentTypeId
-      WHERE g.memberId = t.memberId and g.PaymentRef is not null`;
+      WHERE g.memberId = t.memberId and g.PaymentPaymentId is not null`;
 
     const inputParams = {
       searchText: `%${searchText}%`,
