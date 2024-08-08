@@ -725,7 +725,7 @@ exports.paymentcontribution = async ({ page, limit, searchText, districtid, unit
   const offset = (page - 1) * limit;
   try {
     const pool = await db;
-
+    
     let totalQuery = `
       SELECT COUNT(*) as total,sum(g.contributionAmount) as amount
       FROM KHRA_Members t
@@ -774,8 +774,8 @@ exports.paymentcontribution = async ({ page, limit, searchText, districtid, unit
     }
 
     if (fromdate && todate) {
-      totalQuery += ` AND g.paidDate BETWEEN @fromdate AND @todate`;
-      dataQuery += ` AND g.paidDate BETWEEN @fromdate AND @todate`;
+      totalQuery += ` AND CONVERT(DATE, g.paidDate) BETWEEN @fromdate AND @todate`;
+      dataQuery += ` AND CONVERT(DATE, g.paidDate) BETWEEN @fromdate AND @todate`;
     }
 
     dataQuery += `
@@ -868,8 +868,8 @@ exports.paymentothers = async ({ page, limit, searchText, districtid, unitid, fr
     }
 
     if (fromdate && todate) {
-      totalQuery += ` AND g.paidDate BETWEEN @fromdate AND @todate`;
-      dataQuery += ` AND g.paidDate BETWEEN @fromdate AND @todate`;
+      totalQuery += ` AND CONVERT(DATE, g.paidDate) BETWEEN @fromdate AND @todate`;
+      dataQuery += ` AND CONVERT(DATE, g.paidDate) BETWEEN @fromdate AND @todate`;
     }
 
     if (paytype) {
@@ -1012,8 +1012,8 @@ FROM (
     }
 
     if (fromdate && todate) {
-      totalQuery += ` AND g.paidDate BETWEEN @fromdate AND @todate`;
-      dataQuery += ` AND g.paidDate BETWEEN @fromdate AND @todate`;
+      totalQuery += ` AND CONVERT(DATE, g.paidDate) BETWEEN @fromdate AND @todate`;
+      dataQuery += ` AND CONVERT(DATE, g.paidDate) BETWEEN @fromdate AND @todate`;
     }
 
   //   dataQuery += `
