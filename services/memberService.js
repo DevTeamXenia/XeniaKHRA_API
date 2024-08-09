@@ -83,33 +83,35 @@ exports.getAllStateWiseMembers = async ({ active, pending, page, limit, searchTe
       limit,
       offset
     };
-
-    if (active == 0) {
-      totalQuery += ` AND t.memberActiveStatus = @pending AND t.memberStatus IN (2, 3, 4, 5, 8)`;
-      dataQuery += ` AND t.memberActiveStatus = @pending AND t.memberStatus IN (2, 3, 4, 5, 8)`;
-    } else if (active == 1) {
-      totalQuery += ` AND t.memberActiveStatus = @pending AND t.memberStatus IN (7, 9)`;
-      dataQuery += ` AND t.memberActiveStatus = @pending AND t.memberStatus IN (7, 9)`;
-    } else {
-      totalQuery += ` AND t.memberActiveStatus = @active`;
-      dataQuery += ` AND t.memberActiveStatus = @active`;
-    }
     
-    if (pending) {
-      totalQuery += ` AND t.memberStatus = @pending`;
-      dataQuery += ` AND t.memberStatus = @pending`;
+    // Handle conditions based on 'active' and 'pending'
+    if (active) {     
+      totalQuery += ` AND t.memberActiveStatus = 1 AND t.memberStatus IN (7, 9)`;
+      dataQuery += ` AND t.memberActiveStatus = 1 AND t.memberStatus IN (7, 9)`;
+    } else {
+      totalQuery += ` AND t.memberActiveStatus = 0 AND t.memberStatus IN (2, 3, 4, 5, 8)`;
+      dataQuery += ` AND t.memberActiveStatus = 0 AND t.memberStatus IN (2, 3, 4, 5, 8)`;
     }
 
+    // Apply 'pending' filter if provided
+    // if (pending) {
+    //   totalQuery += ` AND t.memberStatus = @pending`;
+    //   dataQuery += ` AND t.memberStatus = @pending`;
+    // }
+
+    // Apply 'searchText' filter
     if (searchText) {
       totalQuery += ` AND (t.memberBusinessName LIKE @searchText OR t.memberName LIKE @searchText)`;
       dataQuery += ` AND (t.memberBusinessName LIKE @searchText OR t.memberName LIKE @searchText)`;
     }
 
+    // Apply 'districtid' filter
     if (districtid) {
       totalQuery += ` AND t.memberDistrictId = @districtid`;
       dataQuery += ` AND t.memberDistrictId = @districtid`;
     }
 
+    // Apply 'unitid' filter
     if (unitid) {
       totalQuery += ` AND t.memberUnitId = @unitid`;
       dataQuery += ` AND t.memberUnitId = @unitid`;
@@ -120,8 +122,11 @@ exports.getAllStateWiseMembers = async ({ active, pending, page, limit, searchTe
       OFFSET @offset ROWS FETCH NEXT @limit ROWS ONLY
     `;
 
+    // Log the final queries for debugging
+    console.log('Total Query:', totalQuery);
+    console.log('Data Query:', dataQuery);
+
     const totalResult = await pool.request()
-      .input('active', inputParams.active)
       .input('pending', inputParams.pending)
       .input('searchText', inputParams.searchText)
       .input('districtid', inputParams.districtid)
@@ -131,7 +136,6 @@ exports.getAllStateWiseMembers = async ({ active, pending, page, limit, searchTe
     const total = totalResult.recordset[0].total;
 
     const result = await pool.request()
-      .input('active', inputParams.active)
       .input('pending', inputParams.pending)
       .input('searchText', inputParams.searchText)
       .input('districtid', inputParams.districtid)
@@ -148,6 +152,7 @@ exports.getAllStateWiseMembers = async ({ active, pending, page, limit, searchTe
     throw error;
   }
 };
+
 
 
 exports.getAllDistrictWiseMember = async ({ active, districtid, page = 1, limit = 10, searchText = '' }) => {
