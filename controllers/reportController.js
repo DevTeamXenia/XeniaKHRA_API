@@ -175,7 +175,7 @@ exports.payment = async (req, res, next) => {
         todate,
         paytype
       }));
-    } else if (paytype === '1' || paytype === '2') { 
+    } else if (paytype === '1' || paytype === '2' || paytype === '4') { 
       ({ records, total, amount } = await reportService.paymentothers({ 
         page: pageNumber, 
         limit: limitNumber, 

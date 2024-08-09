@@ -738,7 +738,7 @@ exports.paymentcontribution = async ({ page, limit, searchText, districtid, unit
     `;
 
     let dataQuery = `
-      SELECT g.paidDate, u.unitName, 'Contributions' as type, k.contributionText as event, t.memberBusinessName, u.unitContactPerson, u.unitContactNumber, g.contributionPaymentId
+      SELECT g.paidDate, u.unitName, 'Contributions' as type, k.contributionText as event, t.memberBusinessName, t.memberName as unitContactPerson,t.memberMobilenumber as unitContactNumber, g.contributionPaymentId, g.contributionAmount as paidAmount
       FROM KHRA_Members t
       JOIN KHRA_Users F ON F.userId = t.memberUserId
       JOIN KHRA_Districts s ON s.districtId = t.memberDistrictId
@@ -832,7 +832,7 @@ exports.paymentothers = async ({ page, limit, searchText, districtid, unitid, fr
     WHERE g.memberId = t.memberId and g.PaymentPaymentId is not null`;
 
     let dataQuery = `
-    SELECT g.paidDate, u.unitName, x.settingName as type, x.settingName as event, t.memberBusinessName, u.unitContactPerson, u.unitContactNumber, g.PaymentPaymentId
+    SELECT g.paidDate, u.unitName, x.settingName as type, x.settingName as event, t.memberBusinessName, t.memberName as unitContactPerson,t.memberMobilenumber as unitContactNumber, g.PaymentPaymentId, g.paidAmount
     FROM KHRA_Members t
     JOIN KHRA_Users F ON F.userId = t.memberUserId
     JOIN KHRA_Districts s ON s.districtId = t.memberDistrictId
@@ -930,8 +930,8 @@ exports.paymentAll = async ({ page, limit, searchText, districtid, unitid, fromd
             'Contributions' AS type, 
             k.contributionText AS event, 
             t.memberBusinessName, 
-            u.unitContactPerson, 
-            u.unitContactNumber, 
+            t.memberName as unitContactPerson,
+            t.memberMobilenumber as unitContactNumber,  
             g.contributionPaymentId,
             g.contributionAmount,
             0 AS paidAmount 
@@ -949,8 +949,8 @@ exports.paymentAll = async ({ page, limit, searchText, districtid, unitid, fromd
             x.settingName AS type, 
             x.settingName AS event, 
             t.memberBusinessName, 
-            u.unitContactPerson, 
-            u.unitContactNumber, 
+            t.memberName as unitContactPerson,
+            t.memberMobilenumber as unitContactNumber,  
             g.PaymentPaymentId,
             0 AS contributionAmount, 
             g.paidAmount
@@ -975,7 +975,8 @@ exports.paymentAll = async ({ page, limit, searchText, districtid, unitid, fromd
         combined_data.memberBusinessName, 
         combined_data.unitContactPerson, 
         combined_data.unitContactNumber, 
-        combined_data.contributionPaymentId 
+        combined_data.contributionPaymentId,
+        combined_data.paidAmount
       ${baseQuery}`;
 
     let conditions = "";
