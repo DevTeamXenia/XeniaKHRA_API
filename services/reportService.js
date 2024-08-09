@@ -922,69 +922,85 @@ exports.paymentAll = async ({ page, limit, searchText, districtid, unitid, fromd
   try {
     const pool = await db;
 
-    let totalQuery = `
-    SELECT 
-    COUNT(*) AS total,
-    SUM(contributionAmount) + SUM(paidAmount) AS amount 
-FROM (
-    SELECT 
-        g.paidDate, 
-        u.unitName, 
-        'Contributions' AS type, 
-        k.contributionText AS event, 
-        t.memberBusinessName, 
-        u.unitContactPerson, 
-        u.unitContactNumber, 
-        g.contributionPaymentId,
-        g.contributionAmount,
-        0 AS paidAmount 
-    FROM  KHRA_Members t
-    JOIN KHRA_Users F ON F.userId = t.memberUserId
-    JOIN KHRA_Districts s ON s.districtId = t.memberDistrictId
-    JOIN KHRA_Units u ON u.unitId = t.memberUnitId
-    JOIN KHRA_MemberContributions g ON g.memberId = t.memberId
-    JOIN  KHRA_Contributions k ON k.contributionId = g.contributionId
-    WHERE g.memberId = t.memberId AND g.contributionPaymentId IS NOT NULL
-    UNION ALL
-    SELECT 
-        g.paidDate, 
-        u.unitName, 
-        x.settingName AS type, 
-        x.settingName AS event, 
-        t.memberBusinessName, 
-        u.unitContactPerson, 
-        u.unitContactNumber, 
-        g.PaymentPaymentId,
-        0 AS contributionAmount, 
-        g.paidAmount
-    FROM 
-        KHRA_Members t JOIN 
-        KHRA_Users F ON F.userId = t.memberUserId
-    JOIN KHRA_Districts s ON s.districtId = t.memberDistrictId
-    JOIN KHRA_Units u ON u.unitId = t.memberUnitId
-    JOIN KHRA_MemberPayment g ON g.memberId = t.memberId
-    JOIN KHRA_Settings x  ON x.settingId=g.paymentTypeId
-    WHERE g.memberId = t.memberId AND g.PaymentPaymentId IS NOT NULL
-) AS combined_data`;
+    let baseQuery = `
+    FROM (
+        SELECT 
+            g.paidDate, 
+            u.unitName, 
+            'Contributions' AS type, 
+            k.contributionText AS event, 
+            t.memberBusinessName, 
+            u.unitContactPerson, 
+            u.unitContactNumber, 
+            g.contributionPaymentId,
+            g.contributionAmount,
+            0 AS paidAmount 
+        FROM KHRA_Members t
+        JOIN KHRA_Users F ON F.userId = t.memberUserId
+        JOIN KHRA_Districts s ON s.districtId = t.memberDistrictId
+        JOIN KHRA_Units u ON u.unitId = t.memberUnitId
+        JOIN KHRA_MemberContributions g ON g.memberId = t.memberId
+        JOIN KHRA_Contributions k ON k.contributionId = g.contributionId
+        WHERE g.contributionPaymentId IS NOT NULL
+        UNION ALL
+        SELECT 
+            g.paidDate, 
+            u.unitName, 
+            x.settingName AS type, 
+            x.settingName AS event, 
+            t.memberBusinessName, 
+            u.unitContactPerson, 
+            u.unitContactNumber, 
+            g.PaymentPaymentId,
+            0 AS contributionAmount, 
+            g.paidAmount
+        FROM 
+            KHRA_Members t
+        JOIN KHRA_Users F ON F.userId = t.memberUserId
+        JOIN KHRA_Districts s ON s.districtId = t.memberDistrictId
+        JOIN KHRA_Units u ON u.unitId = t.memberUnitId
+        JOIN KHRA_MemberPayment g ON g.memberId = t.memberId
+        JOIN KHRA_Settings x ON x.settingId = g.paymentTypeId
+        WHERE g.PaymentPaymentId IS NOT NULL
+    ) AS combined_data
+    `;
 
+    let totalQuery = `SELECT COUNT(*) AS total, SUM(contributionAmount) + SUM(paidAmount) AS amount ${baseQuery}`;
     let dataQuery = `
-    SELECT g.paidDate, u.unitName, 'Contributions' as type, k.contributionText as event, t.memberBusinessName, u.unitContactPerson, u.unitContactNumber, g.contributionPaymentId
-      FROM KHRA_Members t
-      JOIN KHRA_Users F ON F.userId = t.memberUserId
-      JOIN KHRA_Districts s ON s.districtId = t.memberDistrictId
-      JOIN KHRA_Units u ON u.unitId = t.memberUnitId
-      JOIN KHRA_MemberContributions g ON g.memberId = t.memberId
-      JOIN KHRA_Contributions k ON k.contributionId = g.contributionId
-      WHERE g.memberId = t.memberId and g.contributionPaymentId is not null
-	  union all
-	  SELECT g.paidDate, u.unitName, x.settingName as type, x.settingName as event, t.memberBusinessName, u.unitContactPerson, u.unitContactNumber, g.PaymentPaymentId
-      FROM KHRA_Members t
-      JOIN KHRA_Users F ON F.userId = t.memberUserId
-      JOIN KHRA_Districts s ON s.districtId = t.memberDistrictId
-      JOIN KHRA_Units u ON u.unitId = t.memberUnitId
-      JOIN KHRA_MemberPayment g ON g.memberId = t.memberId
-	  JOIN KHRA_Settings x  ON x.settingId=g.paymentTypeId
-      WHERE g.memberId = t.memberId and g.PaymentPaymentId is not null`;
+      SELECT 
+        combined_data.paidDate, 
+        combined_data.unitName, 
+        combined_data.type, 
+        combined_data.event, 
+        combined_data.memberBusinessName, 
+        combined_data.unitContactPerson, 
+        combined_data.unitContactNumber, 
+        combined_data.contributionPaymentId 
+      ${baseQuery}`;
+
+    let conditions = "";
+
+    if (searchText) {
+      conditions += ` AND (combined_data.unitName LIKE @searchText OR combined_data.memberBusinessName LIKE @searchText OR combined_data.unitContactPerson LIKE @searchText)`;
+    }
+
+    if (districtid) {
+      conditions += ` AND combined_data.districtId = @districtid`;
+    }
+
+    if (unitid) {
+      conditions += ` AND combined_data.unitId = @unitid`;
+    }
+
+    if (fromdate && todate) {
+      conditions += ` AND CONVERT(DATE, combined_data.paidDate) BETWEEN @fromdate AND @todate`;
+    }
+
+    // Append the conditions only if any condition exists
+    if (conditions) {
+      totalQuery += ` WHERE 1=1 ${conditions}`;
+      dataQuery += ` WHERE 1=1 ${conditions}`;
+    }
 
     const inputParams = {
       searchText: `%${searchText}%`,
@@ -995,32 +1011,6 @@ FROM (
       limit,
       offset
     };
-
-    if (searchText) {
-      totalQuery += ` AND (u.unitName LIKE @searchText OR t.memberBusinessName LIKE @searchText OR u.unitContactPerson LIKE @searchText)`;
-      dataQuery += ` AND (u.unitName LIKE @searchText OR t.memberBusinessName LIKE @searchText OR u.unitContactPerson LIKE @searchText)`;
-    }
-
-    if (districtid) {
-      totalQuery += ` AND t.memberDistrictId = @districtid`;
-      dataQuery += ` AND t.memberDistrictId = @districtid`;
-    }
-
-    if (unitid) {
-      totalQuery += ` AND t.memberUnitId = @unitid`;
-      dataQuery += ` AND t.memberUnitId = @unitid`;
-    }
-
-    if (fromdate && todate) {
-      totalQuery += ` AND CONVERT(DATE, g.paidDate) BETWEEN @fromdate AND @todate`;
-      dataQuery += ` AND CONVERT(DATE, g.paidDate) BETWEEN @fromdate AND @todate`;
-    }
-
-  //   dataQuery += `
-  //   ORDER BY g.transactionId ASC
-  //   OFFSET @offset ROWS FETCH NEXT @limit ROWS ONLY
-  // `;
-
 
     const totalResult = await pool.request()
       .input('searchText', inputParams.searchText)
@@ -1052,6 +1042,7 @@ FROM (
     throw error;
   }
 };
+
 
 
 
