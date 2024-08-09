@@ -52,7 +52,7 @@ exports.getAllStateWiseMembers = async ({ active, pending, page, limit, searchTe
       JOIN KHRA_Districts s ON s.districtId = t.memberDistrictId
       JOIN KHRA_Units u ON u.unitId = t.memberUnitId
       JOIN KHRA_MemberGroups g ON g.groupId = t.memberGroupId AND g.groupId = f.userGroupId
-      WHERE t.memberActiveStatus = @active
+      WHERE 1 = 1
     `;
 
     let dataQuery = `
@@ -71,7 +71,7 @@ exports.getAllStateWiseMembers = async ({ active, pending, page, limit, searchTe
       JOIN KHRA_Districts s ON s.districtId = t.memberDistrictId
       JOIN KHRA_Units u ON u.unitId = t.memberUnitId
       JOIN KHRA_MemberGroups g ON g.groupId = t.memberGroupId AND g.groupId = f.userGroupId
-      WHERE t.memberActiveStatus = @active
+      WHERE 1 = 1
     `;
 
     const inputParams = {
@@ -84,6 +84,17 @@ exports.getAllStateWiseMembers = async ({ active, pending, page, limit, searchTe
       offset
     };
 
+    if (active == 0) {
+      totalQuery += ` AND t.memberActiveStatus = @pending AND t.memberStatus IN (2, 3, 4, 5, 8)`;
+      dataQuery += ` AND t.memberActiveStatus = @pending AND t.memberStatus IN (2, 3, 4, 5, 8)`;
+    } else if (active == 1) {
+      totalQuery += ` AND t.memberActiveStatus = @pending AND t.memberStatus IN (7, 9)`;
+      dataQuery += ` AND t.memberActiveStatus = @pending AND t.memberStatus IN (7, 9)`;
+    } else {
+      totalQuery += ` AND t.memberActiveStatus = @active`;
+      dataQuery += ` AND t.memberActiveStatus = @active`;
+    }
+    
     if (pending) {
       totalQuery += ` AND t.memberStatus = @pending`;
       dataQuery += ` AND t.memberStatus = @pending`;

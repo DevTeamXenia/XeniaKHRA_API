@@ -715,9 +715,9 @@ exports.getAllStateWiseDetailsAndGraph = async (districtid, dateid, fromdate, to
         switch (dateid) {
             case '1':
                 membershipSelectPart = `
-                    COUNT(CASE WHEN t.memberStatus IN (7,9) AND CONVERT(date, t.membershipDate) = CONVERT(date, GETDATE()) THEN 1 END) AS NewMemberships_Today,
-                    COUNT(CASE WHEN t.memberStatus IN (2,3,4,5,8) AND CONVERT(date, t.membershipDate) = CONVERT(date, GETDATE()) THEN 1 END) AS PendingMemberships_Today,
-                    COUNT(CASE WHEN t.memberStatus = 6 AND CONVERT(date, t.membershipDate) = CONVERT(date, GETDATE()) THEN 1 END) AS PendingDistrictLevel_Today
+                    COUNT(CASE WHEN t.memberStatus IN (7,9) THEN 1 END) AS NewMemberships_Today,
+                    COUNT(CASE WHEN t.memberStatus IN (2,3,4,5,8) THEN 1 END) AS PendingMemberships_Today,
+                    COUNT(CASE WHEN t.memberStatus = 6 THEN 1 END) AS PendingDistrictLevel_Today
                 `;
                 graphSelectPart = `
                     SUM(CASE WHEN CONVERT(date, t.paidDate) = CONVERT(date, GETDATE()) THEN t.paidAmount ELSE 0 END) AS amount,
